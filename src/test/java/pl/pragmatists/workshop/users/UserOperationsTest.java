@@ -1,5 +1,7 @@
 package pl.pragmatists.workshop.users;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -39,12 +42,33 @@ class UserOperationsTest {
 		assertThat(responseBody.email).isEqualTo("jan.przykladowy@pragmatists.pl");
 	}
 
+	@Test
+	void fail_creating_when_email_not_valid() {
+		ResponseEntity<UserFetchResponse> response = restTemplate.postForEntity("/users", new UserCreationRequest("jan.bezmalpy"), UserFetchResponse.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
+	}
+
+	@Test
+	void fail_creating_when_password_not_strong_enough() {
+		ResponseEntity<UserFetchResponse> response = restTemplate.postForEntity("/users", new UserCreationRequest("jan.przykladowy@pragmatists.pl", "123456"), UserFetchResponse.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
+	}
+
 	public static class UserCreationRequest {
 
-		public String email;
+		public final String email;
+		public final String password;
 
 		public UserCreationRequest(String email) {
 			this.email = email;
+			this.password = RandomStringUtils.random(10);
+		}
+
+		public UserCreationRequest(String email, String password) {
+			this.email = email;
+			this.password = password;
 		}
 	}
 

@@ -1,10 +1,12 @@
 package pl.pragmatists.workshop.users.application;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pragmatists.workshop.users.domain.IdGenerator;
 import pl.pragmatists.workshop.users.domain.User;
 import pl.pragmatists.workshop.users.domain.UserRepository;
+import pl.pragmatists.workshop.users.domain.ValidationException;
 
 @RestController
 public class UsersEndpoint {
@@ -19,7 +21,7 @@ public class UsersEndpoint {
 
     @PostMapping("/users")
     public ResponseEntity<UserCreationResponseJson> createUser(@RequestBody UserCreationJson userCreationJson) {
-        User user = new User(idGenerator.id(), userCreationJson.email);
+        User user = new User(idGenerator.id(), userCreationJson.email, userCreationJson.password);
         userRepository.save(user);
         return ResponseEntity.ok(new UserCreationResponseJson(user.id));
     }
@@ -30,9 +32,16 @@ public class UsersEndpoint {
         return ResponseEntity.ok(new UserFetchResponseJson(user));
     }
 
-    public static class UserCreationJson {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ValidationException.class)
+    public void validationError() {
+
+    }
+
+    private static class UserCreationJson {
 
         public String email;
+        public String password;
     }
 
     private static class UserCreationResponseJson {
@@ -54,4 +63,5 @@ public class UsersEndpoint {
             this.email = user.email;
         }
     }
+
 }
