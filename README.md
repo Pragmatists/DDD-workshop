@@ -2,6 +2,8 @@
 
 ## Struktura aplikacji
 
+### Opis domeny
+
 ### Standardowa struktura (z anemicznym modelem)
 Może trochę dziwić w kontekście "standardowej" struktury projektu. Pewnie przyzwyczajeni jesteście do struktury:
 * controller - odpowiedzialny za rejestrownie endpointów, mapowanie jsonów do obiektów oraz wywołanie operacji na serwisie, odebranie
@@ -33,11 +35,11 @@ zapewnia, że jest zawsze w poprawnym, spójnym stanie.
 
 Przykładem encji jest User.
 
-## Generowanie idków 
+### Generowanie idków 
 
 Możliwe strategie generowania idków (przez application service albo przez repository). 
 
-### Kto generuje idki  
+#### Kto generuje idki  
 
 Persistence:
 * zapewniona unikalność  
@@ -48,9 +50,12 @@ Application:
 * szybkość
 * czasami przez wymagania nie jest możliwy do zaimplementowania (idki numeryczne unikalne)
 
-### Czas generowania idków
+#### Czas generowania idków
 
 plusy:
 * dostępność od raz - struktury hashujące
 
-##  
+## Repozytorium 
+
+Służy do persystencji stworzony encji. Jest to element domeny, domena nie zależy od niczego, jedynie 
+infrastruktura implementuje domenę. Implementacja na razie w pamięci ale będziemy to rozwijać.

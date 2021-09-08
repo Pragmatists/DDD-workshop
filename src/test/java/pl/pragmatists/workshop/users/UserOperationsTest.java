@@ -20,16 +20,17 @@ class UserOperationsTest {
 
 	@Test
 	void create_for_email() {
-		ResponseEntity<String> response = restTemplate.postForEntity("/users", new UserCreationRequest("jan.przykladowy@pragmatists.pl"), String.class);
+		ResponseEntity<UserFetchResponse> response = restTemplate.postForEntity("/users", new UserCreationRequest("jan.przykladowy@pragmatists.pl"), UserFetchResponse.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(OK);
+		assertThat(response.getBody().id).isNotNull();
 	}
 
 	@Test
 	void create_and_fetch() {
-		ResponseEntity<String> response = restTemplate.postForEntity("/users", new UserCreationRequest("jan.przykladowy@pragmatists.pl"), String.class);
+		ResponseEntity<UserFetchResponse> response = restTemplate.postForEntity("/users", new UserCreationRequest("jan.przykladowy@pragmatists.pl"), UserFetchResponse.class);
 
-		String userId = response.getBody();
+		String userId = response.getBody().id;
 		ResponseEntity<UserFetchResponse> fetchResponse = restTemplate.getForEntity("/users/" + userId, UserFetchResponse.class);
 
 		assertThat(fetchResponse.getStatusCode()).isEqualTo(OK);
