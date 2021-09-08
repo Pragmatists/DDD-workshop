@@ -59,3 +59,14 @@ plusy:
 
 Służy do persystencji stworzony encji. Jest to element domeny, domena nie zależy od niczego, jedynie 
 infrastruktura implementuje domenę. Implementacja na razie w pamięci ale będziemy to rozwijać.
+
+## Walidacja 
+
+### Prosta walidacja w encjach
+
+### Walidacja na poziomie factory
+
+#### Factory 
+
+Ukrywa bardziej zaawansowane kreowanie obiektów.
+

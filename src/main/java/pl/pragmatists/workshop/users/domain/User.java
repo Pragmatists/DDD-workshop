@@ -1,10 +1,13 @@
 package pl.pragmatists.workshop.users.domain;
 
+import org.springframework.stereotype.Component;
+
 public class User {
+
     public String id;
     public String email;
 
-    public User(String id, String email, String password) {
+    private User(String id, String email, String password) {
         validateEmail(email);
         validatePassword(password);
         this.id = id;
@@ -27,6 +30,30 @@ public class User {
     }
 
     public static class PasswordNotValidException extends ValidationException {
+    }
+
+    private static class UserAlreadyExistsException extends ValidationException {
+    }
+
+    @Component
+    public static class UserFactory {
+
+        private final IdGenerator idGenerator;
+        private final Users users;
+
+        public UserFactory(IdGenerator idGenerator, Users users) {
+            this.idGenerator = idGenerator;
+            this.users = users;
+        }
+
+        public User newUser(String email, String password) {
+            if (users.hasUserWith(email)) {
+                throw new UserAlreadyExistsException();
+            }
+            User user = new User(idGenerator.id(), email, password);
+            return user;
+        }
 
     }
+
 }

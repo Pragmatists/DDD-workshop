@@ -1,15 +1,14 @@
 package pl.pragmatists.workshop.users;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import pl.pragmatists.workshop.users.domain.TestUserRepository;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -20,6 +19,14 @@ class UserOperationsTest {
 
 	@Autowired
 	private TestRestTemplate restTemplate;
+
+	@Autowired
+	private TestUserRepository userRepository;
+
+	@BeforeEach
+	void setUp() {
+		userRepository.clearAll();
+	}
 
 	@Test
 	void create_for_email() {
@@ -52,6 +59,15 @@ class UserOperationsTest {
 	@Test
 	void fail_creating_when_password_not_strong_enough() {
 		ResponseEntity<UserFetchResponse> response = restTemplate.postForEntity("/users", new UserCreationRequest("jan.przykladowy@pragmatists.pl", "123456"), UserFetchResponse.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
+	}
+
+	@Test
+	void fail_creating_when_user_already_exists() {
+		restTemplate.postForEntity("/users", new UserCreationRequest("jan.przykladowy@pragmatists.pl"), UserFetchResponse.class);
+
+		ResponseEntity<UserFetchResponse> response = restTemplate.postForEntity("/users", new UserCreationRequest("jan.przykladowy@pragmatists.pl"), UserFetchResponse.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
 	}
