@@ -29,6 +29,15 @@ public class UsersEndpoint {
         return ResponseEntity.ok(new UserFetchResponseJson(user));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Void> login(@RequestBody UserLoginJson userLoginJson) {
+        User user = userRepository.find(userLoginJson.email);
+        if (!user.passwordMatches(userLoginJson.password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ValidationException.class)
     public void validationError() {
@@ -57,8 +66,12 @@ public class UsersEndpoint {
 
         public UserFetchResponseJson(User user) {
             this.id = user.id;
-            this.email = user.email;
+            this.email = user.email.value();
         }
     }
 
+    private static class UserLoginJson {
+        public String email;
+        public String password;
+    }
 }

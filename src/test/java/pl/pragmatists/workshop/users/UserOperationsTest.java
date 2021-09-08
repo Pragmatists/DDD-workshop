@@ -11,8 +11,7 @@ import pl.pragmatists.workshop.users.domain.TestUserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class UserOperationsTest {
@@ -72,6 +71,26 @@ class UserOperationsTest {
 		assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST);
 	}
 
+	@Test
+	void login() {
+		restTemplate.postForEntity("/users",
+				new UserCreationRequest("jan.przykladowy@pragmatists.pl", "some-password"), UserFetchResponse.class);
+
+		ResponseEntity<Void> loginResponse = restTemplate.postForEntity("/login", new UserLoginRequest("jan.przykladowy@pragmatists.pl", "some-password"), Void.class);
+
+		assertThat(loginResponse.getStatusCode()).isEqualTo(OK);
+	}
+
+	@Test
+	void fail_login_with_wrong_password() {
+		restTemplate.postForEntity("/users",
+				new UserCreationRequest("jan.przykladowy@pragmatists.pl", "some-password"), UserFetchResponse.class);
+
+		ResponseEntity<Void> loginResponse = restTemplate.postForEntity("/login", new UserLoginRequest("jan.przykladowy@pragmatists.pl", "some-password2"), Void.class);
+
+		assertThat(loginResponse.getStatusCode()).isEqualTo(UNAUTHORIZED);
+	}
+
 	public static class UserCreationRequest {
 
 		public final String email;
@@ -91,5 +110,15 @@ class UserOperationsTest {
 	public static class UserFetchResponse {
 		public String id;
 		public String email;
+	}
+
+	private static class UserLoginRequest {
+		public String email;
+		public String password;
+
+		public UserLoginRequest(String email, String password) {
+			this.email = email;
+			this.password = password;
+		}
 	}
 }

@@ -70,3 +70,18 @@ infrastruktura implementuje domenę. Implementacja na razie w pamięci ale będz
 
 Ukrywa bardziej zaawansowane kreowanie obiektów.
 
+## Value object
+
+Drugi building blok. W przeciwieństwie do encji nie są to obiekty, które musimy móc jednoznacznie zidentyfikować.
+Posiadają swoje atrybuty. Jest niemutowalny, składnik encji. 
+Wrapper na typy proste, często posiadający specjalne zachowania (nie tylko value holder).
+Przykładowe VO:
+* Date (nie po prostu string)
+* Money (a nie bigdecimal + zachowania)
+* Password
+* Email
+
+Czemu nie prosty type:
+* większa ekspresja wyrazu - bardziej domenowo odbieramy kod
+* mogą posiadać od razu własną walidację
+* dodatkowe zachowania

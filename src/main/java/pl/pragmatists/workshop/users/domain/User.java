@@ -2,28 +2,23 @@ package pl.pragmatists.workshop.users.domain;
 
 import org.springframework.stereotype.Component;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class User {
 
-    public String id;
-    public String email;
+    public final String id;
+    public final Email email;
+    private final Password password;
 
     private User(String id, String email, String password) {
-        validateEmail(email);
-        validatePassword(password);
         this.id = id;
-        this.email = email;
+        this.password = new Password(password);
+        this.email = new Email(email);
     }
 
-    private void validateEmail(String email) {
-        if (!email.contains("@")) {
-            throw new EmailNotValidException();
-        }
-    }
-
-    private void validatePassword(String password) {
-        if (password.length() < 8) {
-            throw new PasswordNotValidException();
-        }
+    public boolean passwordMatches(String password) {
+        return this.password.matches(password);
     }
 
     public static class EmailNotValidException extends ValidationException {
@@ -56,4 +51,50 @@ public class User {
 
     }
 
+    private static class Password {
+
+        private final String password;
+
+        public Password(String password) {
+            validate(password);
+            this.password = cipher(password);
+        }
+
+        private String cipher(String password) {
+            try {
+                return new String(MessageDigest.getInstance("SHA-1").digest(password.getBytes()));
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public boolean matches(String password) {
+            return this.password.equals(cipher(password));
+        }
+
+        private void validate(String password) {
+            if (password.length() < 8) {
+                throw new PasswordNotValidException();
+            }
+        }
+    }
+
+    public static class Email {
+        private String email;
+
+        public Email(String email) {
+            validate(email);
+            this.email = email;
+        }
+
+        private void validate(String email) {
+            if (!email.contains("@")) {
+                throw new EmailNotValidException();
+            }
+        }
+
+        public String value() {
+            return email;
+        }
+    }
 }

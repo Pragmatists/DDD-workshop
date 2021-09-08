@@ -26,8 +26,13 @@ public class InMemoryUserRepository implements UserRepository, Users, TestUserRe
     }
 
     @Override
+    public User find(String email) {
+        return users.stream().filter($ -> $.email.value().equals(email)).findFirst().get();
+    }
+
+    @Override
     public boolean hasUserWith(String email) {
-        return users.stream().anyMatch(user -> user.email.equals(email));
+        return users.stream().anyMatch(user -> user.email.value().equals(email));
     }
 
     @Override
