@@ -85,3 +85,11 @@ Czemu nie prosty type:
 * większa ekspresja wyrazu - bardziej domenowo odbieramy kod
 * mogą posiadać od razu własną walidację
 * dodatkowe zachowania
+
+## Operacje biznesowe w domenie 
+
+Przykładowe operacje biznesowe które możemy zaimplementować to:
+
+- resetowanie hasła
+- blokowanie użytkownika - przestaje mieć możliwość logowania
+- odblokowanie użytkownika - + dodatkowe wymaganie - nie może się zalogować starym hasłem;

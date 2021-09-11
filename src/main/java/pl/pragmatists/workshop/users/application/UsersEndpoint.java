@@ -32,9 +32,33 @@ public class UsersEndpoint {
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody UserLoginJson userLoginJson) {
         User user = userRepository.find(userLoginJson.email);
-        if (!user.passwordMatches(userLoginJson.password)) {
+        if (!user.canLoginWith(userLoginJson.password)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/users/{id}/resetPassword")
+    public ResponseEntity<Void> resetPassword(@PathVariable("id") String userId, @RequestBody UserResetPasswordJson userResetPasswordJson) {
+        User user = userRepository.load(userId);
+        user.resetPassword(userResetPasswordJson.password);
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/users/{id}/block")
+    public ResponseEntity<Void> block(@PathVariable("id") String id) {
+        User user = userRepository.load(id);
+        user.block();
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/users/{id}/unblock")
+    public ResponseEntity<Void> unblock(@PathVariable("id") String id) {
+        User user = userRepository.load(id);
+        user.unblock();
+        userRepository.save(user);
         return ResponseEntity.ok().build();
     }
 
@@ -72,6 +96,10 @@ public class UsersEndpoint {
 
     private static class UserLoginJson {
         public String email;
+        public String password;
+    }
+
+    private static class UserResetPasswordJson {
         public String password;
     }
 }

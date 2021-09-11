@@ -1,6 +1,8 @@
 package pl.pragmatists.workshop.users.domain;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -8,8 +10,9 @@ import java.security.NoSuchAlgorithmException;
 public class User {
 
     public final String id;
-    public final Email email;
-    private final Password password;
+    public Email email;
+    private Password password;
+    private boolean isBlocked = false;
 
     private User(String id, String email, String password) {
         this.id = id;
@@ -17,8 +20,21 @@ public class User {
         this.email = new Email(email);
     }
 
-    public boolean passwordMatches(String password) {
-        return this.password.matches(password);
+    public boolean canLoginWith(String password) {
+        return !this.isBlocked && this.password.matches(password);
+    }
+
+    public void resetPassword(String password) {
+        this.password = new Password(password);
+    }
+
+    public void block() {
+        this.isBlocked = true;
+    }
+
+    public void unblock() {
+        this.isBlocked = false;
+        this.password = Password.random();
     }
 
     public static class EmailNotValidException extends ValidationException {
@@ -58,6 +74,10 @@ public class User {
         public Password(String password) {
             validate(password);
             this.password = cipher(password);
+        }
+
+        public static Password random() {
+            return new Password(RandomStringUtils.random(10));
         }
 
         private String cipher(String password) {
