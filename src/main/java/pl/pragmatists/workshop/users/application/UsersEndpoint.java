@@ -10,10 +10,16 @@ public class UsersEndpoint {
 
     private final UserRepository userRepository;
     private final User.UserFactory userFactory;
+    private final UserPasswordTokenRepository userPasswordTokenRepository;
+    private final IdGenerator idGenerator;
+    private final UserResetPasswordService userResetPasswordService;
 
-    public UsersEndpoint(UserRepository userRepository, User.UserFactory userFactory) {
+    public UsersEndpoint(UserRepository userRepository, User.UserFactory userFactory, UserPasswordTokenRepository userPasswordTokenRepository, IdGenerator idGenerator, UserResetPasswordService userResetPasswordService) {
         this.userRepository = userRepository;
         this.userFactory = userFactory;
+        this.userPasswordTokenRepository = userPasswordTokenRepository;
+        this.idGenerator = idGenerator;
+        this.userResetPasswordService = userResetPasswordService;
     }
 
     @PostMapping("/users")
@@ -38,14 +44,6 @@ public class UsersEndpoint {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/users/{id}/resetPassword")
-    public ResponseEntity<Void> resetPassword(@PathVariable("id") String userId, @RequestBody UserResetPasswordJson userResetPasswordJson) {
-        User user = userRepository.load(userId);
-        user.resetPassword(userResetPasswordJson.password);
-        userRepository.save(user);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/users/{id}/block")
     public ResponseEntity<Void> block(@PathVariable("id") String id) {
         User user = userRepository.load(id);
@@ -59,6 +57,19 @@ public class UsersEndpoint {
         User user = userRepository.load(id);
         user.unblock();
         userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/users/{userId}/remindPassword")
+    public ResponseEntity<UserRemindPasswordResponseJson> remindPassword(@PathVariable String userId) {
+        UserPasswordToken userPasswordToken = new UserPasswordToken(idGenerator.id(), userId);
+        userPasswordTokenRepository.save(userPasswordToken);
+        return ResponseEntity.ok(new UserRemindPasswordResponseJson(userPasswordToken.token()));
+    }
+
+    @PostMapping("/users/{id}/resetPassword")
+    public ResponseEntity<Void> resetPassword(@PathVariable("id") String userId, @RequestBody UserResetPasswordRequestJson userResetPasswordRequestJson) {
+        userResetPasswordService.resetPasswordFor(userId, userResetPasswordRequestJson.token, userResetPasswordRequestJson.password);
         return ResponseEntity.ok().build();
     }
 
@@ -99,7 +110,17 @@ public class UsersEndpoint {
         public String password;
     }
 
-    private static class UserResetPasswordJson {
+    private static class UserResetPasswordRequestJson {
         public String password;
+        public String token;
     }
+
+    private static class UserRemindPasswordResponseJson {
+        public String token;
+
+        public UserRemindPasswordResponseJson(String token) {
+            this.token = token;
+        }
+    }
+
 }

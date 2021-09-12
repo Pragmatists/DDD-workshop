@@ -33,7 +33,7 @@ Encja to jeden z podstawowych budulców domenowych w DDD. To obiekt, który moż
 Obiekt ten może zmieniać swój stan w trakcie życia systemu. Dba też o swoje niezmienniki (invariants), 
 zapewnia, że jest zawsze w poprawnym, spójnym stanie.
 
-Przykładem encji jest User.
+Przykładem encji jest User. Wspomnijmy o aggreagacie.
 
 ### Generowanie idków 
 
@@ -93,3 +93,20 @@ Przykładowe operacje biznesowe które możemy zaimplementować to:
 - resetowanie hasła
 - blokowanie użytkownika - przestaje mieć możliwość logowania
 - odblokowanie użytkownika - + dodatkowe wymaganie - nie może się zalogować starym hasłem;
+
+## Application service 
+
+Interfejs do domeny - PORT przez który wchodzi się ze znanym API. Instruuje domenę i możę wykonywać dodatkowe akcje. Przykładowe użycia:
+
+- uwierzytelnianie - w springu np. @PreAuthorize
+- emailing
+- wysyłanie eventów
+- sprawdzenie czy obiekt istnieje
+
+W zasadzie w naszym przypadku całkiem dobry application service może być nasz endpoint.
+
+## Domain service
+
+Wrapuje obiekty domenowe żeby wyrazić coś czego nie może pojedyncza encja. Jakby rozwinięcie tego czego nie widać w zamodelowanych
+obiektach domenowych.
+Mogą to być też obiekty uzyskujące potrzebne informacje z zewnątrz.

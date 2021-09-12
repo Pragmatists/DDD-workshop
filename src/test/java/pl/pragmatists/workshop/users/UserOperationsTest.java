@@ -96,11 +96,28 @@ class UserOperationsTest {
 	void reset_password_to_new_one() {
 		String userId = createUser("jan.przykladowy@pragmatists.pl", "some-password");
 
-		ResponseEntity<Void> resetPasswordResponse = restTemplate.postForEntity(format("/users/%s/resetPassword", userId), new UserResetPasswordRequest("new-password"), Void.class);
+		ResponseEntity<UserRemindPasswordResponse> response = restTemplate.postForEntity(format("/users/%s/remindPassword", userId), new HashMap<>(), UserRemindPasswordResponse.class);
+
+		String token = response.getBody().token;
+		assertThat(response.getStatusCode()).isEqualTo(OK);
+		assertThat(token).isNotNull();
+
+		ResponseEntity<Void> resetPasswordResponse = restTemplate.postForEntity(format("/users/%s/resetPassword", userId),
+				new UserResetPasswordRequest("new-password", token), Void.class);
 
 		assertThat(resetPasswordResponse.getStatusCode()).isEqualTo(OK);
 		assertThat(loginUser("jan.przykladowy@pragmatists.pl", "some-password").getStatusCode()).isEqualTo(UNAUTHORIZED);
 		assertThat(loginUser("jan.przykladowy@pragmatists.pl", "new-password").getStatusCode()).isEqualTo(OK);
+	}
+
+	@Test
+	void fail_resetting_password_with_invalid_token() {
+		String userId = createUser("jan.przykladowy@pragmatists.pl", "some-password");
+
+		ResponseEntity<Void> resetPasswordResponse = restTemplate.postForEntity(format("/users/%s/resetPassword", userId),
+				new UserResetPasswordRequest("new-password", "token"), Void.class);
+
+		assertThat(resetPasswordResponse.getStatusCode()).isEqualTo(BAD_REQUEST);
 	}
 
 	@Test
@@ -122,13 +139,10 @@ class UserOperationsTest {
 
 		assertThat(unblockResponse.getStatusCode()).isEqualTo(OK);
 		assertThat(loginUser("jan.przykladowy@pragmatists.pl", "some-password").getStatusCode()).isEqualTo(UNAUTHORIZED);
-
-		resetPassword(userId, "new-password");
-		assertThat(loginUser("jan.przykladowy@pragmatists.pl", "new-password").getStatusCode()).isEqualTo(OK);
 	}
 
-	private ResponseEntity<Void> resetPassword(String userId, String password) {
-		ResponseEntity<Void> resetPasswordResponse = restTemplate.postForEntity(format("/users/%s/resetPassword", userId), new UserResetPasswordRequest(password), Void.class);
+	private ResponseEntity<Void> resetPassword(String userId, String password, String token) {
+		ResponseEntity<Void> resetPasswordResponse = restTemplate.postForEntity(format("/users/%s/resetPassword", userId), new UserResetPasswordRequest(password, token), Void.class);
 		return resetPasswordResponse;
 	}
 
@@ -185,9 +199,15 @@ class UserOperationsTest {
 
 	private static class UserResetPasswordRequest {
 		public String password;
+		public String token;
 
-		public UserResetPasswordRequest(String password) {
+		public UserResetPasswordRequest(String password, String token) {
 			this.password = password;
+			this.token = token;
 		}
+	}
+
+	private static class UserRemindPasswordResponse {
+		public String token;
 	}
 }
