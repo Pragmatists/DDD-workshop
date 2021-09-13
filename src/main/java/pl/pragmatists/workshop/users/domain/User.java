@@ -8,8 +8,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class User {
 
-    public String id;
-    public Email email;
+    private String id;
+    private Email email;
     private Password password;
     private boolean isBlocked = false;
 
@@ -37,6 +37,10 @@ public class User {
     public void unblock() {
         this.isBlocked = false;
         this.password = Password.random();
+    }
+
+    public String id() {
+        return id;
     }
 
     public static class EmailNotValidException extends ValidationException {

@@ -2,8 +2,22 @@ package pl.pragmatists.workshop.users.application;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import pl.pragmatists.workshop.users.domain.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import pl.pragmatists.workshop.users.domain.IdGenerator;
+import pl.pragmatists.workshop.users.domain.User;
+import pl.pragmatists.workshop.users.domain.UserPasswordToken;
+import pl.pragmatists.workshop.users.domain.UserPasswordTokenRepository;
+import pl.pragmatists.workshop.users.domain.UserRepository;
+import pl.pragmatists.workshop.users.domain.UserResetPasswordService;
+import pl.pragmatists.workshop.users.domain.UsersFinder;
+import pl.pragmatists.workshop.users.domain.UsersFinder.UserProjection;
+import pl.pragmatists.workshop.users.domain.ValidationException;
 
 @RestController
 public class UsersEndpoint {
@@ -13,26 +27,28 @@ public class UsersEndpoint {
     private final UserPasswordTokenRepository userPasswordTokenRepository;
     private final IdGenerator idGenerator;
     private final UserResetPasswordService userResetPasswordService;
+    private final UsersFinder usersFinder;
 
-    public UsersEndpoint(UserRepository userRepository, User.UserFactory userFactory, UserPasswordTokenRepository userPasswordTokenRepository, IdGenerator idGenerator, UserResetPasswordService userResetPasswordService) {
+    public UsersEndpoint(UserRepository userRepository, User.UserFactory userFactory, UserPasswordTokenRepository userPasswordTokenRepository, IdGenerator idGenerator, UserResetPasswordService userResetPasswordService, UsersFinder usersFinder) {
         this.userRepository = userRepository;
         this.userFactory = userFactory;
         this.userPasswordTokenRepository = userPasswordTokenRepository;
         this.idGenerator = idGenerator;
         this.userResetPasswordService = userResetPasswordService;
+        this.usersFinder = usersFinder;
     }
 
     @PostMapping("/users")
     public ResponseEntity<UserCreationResponseJson> createUser(@RequestBody UserCreationJson userCreationJson) {
         User user = userFactory.newUser(userCreationJson.email, userCreationJson.password);
         userRepository.save(user);
-        return ResponseEntity.ok(new UserCreationResponseJson(user.id));
+        return ResponseEntity.ok(new UserCreationResponseJson(user.id()));
     }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<UserFetchResponseJson> fetchUser(@PathVariable String id) {
-        User user = userRepository.load(id);
-        return ResponseEntity.ok(new UserFetchResponseJson(user));
+        UserProjection userProjection = usersFinder.byId(id);
+        return ResponseEntity.ok(new UserFetchResponseJson(userProjection));
     }
 
     @PostMapping("/login")
@@ -99,9 +115,9 @@ public class UsersEndpoint {
         public final String id;
         public final String email;
 
-        public UserFetchResponseJson(User user) {
+        public UserFetchResponseJson(UserProjection user) {
             this.id = user.id;
-            this.email = user.email.value();
+            this.email = user.email.email;
         }
     }
 

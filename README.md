@@ -114,3 +114,10 @@ Mogą to być też obiekty uzyskujące potrzebne informacje z zewnątrz.
 ## Repozytorium w mongo - implementacja
 
 Przejscie na repozytorium w mongo
+
+## CQRS
+
+Rozdzielenie sposobu obsługi modyfikacji obiektów od ich querowania. Plusy:
+
+- różne modele (nie interferują ze sobą), nie tworzymy niepotrzebnych metod dostępowych
+- w różny sposób obsługiwane mogą być pod spodem (nawet inna baza danych!)
