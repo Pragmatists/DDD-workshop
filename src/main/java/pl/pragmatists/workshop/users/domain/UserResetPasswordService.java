@@ -23,5 +23,6 @@ public class UserResetPasswordService {
         User user = userRepository.load(userId);
         user.resetPassword(password);
         userRepository.save(user);
+        userPasswordTokenRepository.delete(token);
     }
 }

@@ -22,4 +22,9 @@ public class InMemoryUserPasswordTokenRepository implements UserPasswordTokenRep
     public Optional<UserPasswordToken> load(String token) {
         return tokens.stream().filter($ -> $.token().equals(token)).findFirst();
     }
+
+    @Override
+    public void delete(String token) {
+        tokens.stream().filter($ -> $.token().equals(token)).findFirst().ifPresent($ -> tokens.remove($));
+    }
 }

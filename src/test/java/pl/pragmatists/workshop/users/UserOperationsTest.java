@@ -111,6 +111,21 @@ class UserOperationsTest {
 	}
 
 	@Test
+	void fail_resetting_password_twice_with_same_token() {
+		String userId = createUser("jan.przykladowy@pragmatists.pl", "some-password");
+		ResponseEntity<UserRemindPasswordResponse> response = restTemplate.postForEntity(format("/users/%s/remindPassword", userId), new HashMap<>(), UserRemindPasswordResponse.class);
+		String token = response.getBody().token;
+
+		ResponseEntity<Void> firstResetPasswordResponse = restTemplate.postForEntity(format("/users/%s/resetPassword", userId),
+				new UserResetPasswordRequest("new-password", token), Void.class);
+		ResponseEntity<Void> secondResetPasswordResponse = restTemplate.postForEntity(format("/users/%s/resetPassword", userId),
+				new UserResetPasswordRequest("new-password-2", token), Void.class);
+
+		assertThat(firstResetPasswordResponse.getStatusCode()).isEqualTo(OK);
+		assertThat(secondResetPasswordResponse.getStatusCode()).isEqualTo(BAD_REQUEST);
+	}
+
+	@Test
 	void fail_resetting_password_with_invalid_token() {
 		String userId = createUser("jan.przykladowy@pragmatists.pl", "some-password");
 

@@ -6,4 +6,6 @@ public interface UserPasswordTokenRepository {
     void save(UserPasswordToken userPasswordToken);
 
     Optional<UserPasswordToken> load(String token);
+
+    void delete(String token);
 }
