@@ -110,3 +110,7 @@ W zasadzie w naszym przypadku całkiem dobry application service może być nasz
 Wrapuje obiekty domenowe żeby wyrazić coś czego nie może pojedyncza encja. Jakby rozwinięcie tego czego nie widać w zamodelowanych
 obiektach domenowych.
 Mogą to być też obiekty uzyskujące potrzebne informacje z zewnątrz.
+
+## Repozytorium w mongo - implementacja
+
+Przejscie na repozytorium w mongo

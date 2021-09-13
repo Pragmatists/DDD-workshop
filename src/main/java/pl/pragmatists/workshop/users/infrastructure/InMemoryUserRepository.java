@@ -1,6 +1,5 @@
 package pl.pragmatists.workshop.users.infrastructure;
 
-import org.springframework.stereotype.Component;
 import pl.pragmatists.workshop.users.domain.TestUserRepository;
 import pl.pragmatists.workshop.users.domain.User;
 import pl.pragmatists.workshop.users.domain.UserRepository;
@@ -9,7 +8,7 @@ import pl.pragmatists.workshop.users.domain.Users;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@Component
+//@Component
 public class InMemoryUserRepository implements UserRepository, Users, TestUserRepository {
 
     private ArrayList<User> users = new ArrayList<>();

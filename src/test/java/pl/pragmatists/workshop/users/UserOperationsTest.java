@@ -6,15 +6,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
-import pl.pragmatists.workshop.users.domain.TestUserRepository;
 
 import java.util.HashMap;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class UserOperationsTest {
@@ -23,11 +25,11 @@ class UserOperationsTest {
 	private TestRestTemplate restTemplate;
 
 	@Autowired
-	private TestUserRepository userRepository;
+	private MongoTemplate mongoTemplate;
 
 	@BeforeEach
 	void setUp() {
-		userRepository.clearAll();
+		mongoTemplate.dropCollection("users");
 	}
 
 	@Test

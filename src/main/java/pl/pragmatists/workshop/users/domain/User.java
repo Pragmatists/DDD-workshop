@@ -2,17 +2,19 @@ package pl.pragmatists.workshop.users.domain;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class User {
 
-    public final String id;
+    public String id;
     public Email email;
     private Password password;
     private boolean isBlocked = false;
+
+    public User() {
+    }
 
     private User(String id, String email, String password) {
         this.id = id;
@@ -69,7 +71,9 @@ public class User {
 
     private static class Password {
 
-        private final String password;
+        private String password;
+
+        public Password() { }
 
         public Password(String password) {
             validate(password);
